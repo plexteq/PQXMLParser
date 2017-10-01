@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, Plexteq
+ * Copyright (c) 2014, Plexteq OÜ
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,28 @@
     return self;
 }
 
+-(BOOL) isValidNode: (xmlNodePtr) node
+{
+    if (!self->_node)
+        return NO;
+
+    int type = [self typeWithNode:node];
+    if (type == XML_ELEMENT_INVALID)
+        return NO;
+    
+    return YES;
+}
+
 -(id)initWithNode: (xmlNodePtr) node andDocument: (XmlDocument*) doc
 {
+    int type = [self typeWithNode:node];
+
+    if (type == XML_ELEMENT_INVALID)
+        return nil;
+    
+    //if ([self typeWithNode:node] != XML_ELEMENT_NODE)
+        //return nil;
+    
     self = [self initWithNode: node];
     if (self) {
         [self setDocument: doc];
@@ -68,7 +88,10 @@
     
     while (child)
     {
-        if (xmlStrcasecmp(name, child->name) == 0)
+        BOOL isNode = [self typeWithNode:child] == XML_ELEMENT_NODE,
+            nodeMatches = xmlStrcasecmp(name, child->name) == 0;
+        
+        if (isNode && nodeMatches)
             return [[XmlNode alloc] initWithNode:child andDocument:self->document];
         
         child = child->next;
@@ -92,7 +115,11 @@
     return [[XmlNode alloc] initWithNode:next andDocument:self.document];
 }
 
--(NSArray*)children
+-(NSArray*)children {
+    return [self childrenWithType: XML_ELEMENT_NODE];
+}
+
+-(NSArray*)childrenWithType: (int) type
 {
     if (!self->_node)
         return nil;
@@ -102,7 +129,13 @@
     
     while (node)
     {
-        [nodes addObject:[[XmlNode alloc] initWithNode:node andDocument:[self document]]];
+        BOOL typeMatches = ([self typeWithNode:node] == type),
+             wildcardTypeRequested = (type == XML_ELEMENT_ANY);
+        
+        if (typeMatches || wildcardTypeRequested) {
+            [nodes addObject:[[XmlNode alloc] initWithNode:node andDocument:[self document]]];
+        }
+        
         node = node->next;
     }
     
@@ -113,13 +146,28 @@
 {
     if (!self->_node)
         return nil;
+    
+    xmlNode* prevSibling = self->_node->prev;
 
-    xmlNode* prev = self->_node->prev;
+    while (true)
+    {
+        if (!prevSibling)
+            return nil;
+        
+        int type = [self typeWithNode:prevSibling];
+        
+        switch (type) {
+            case XML_ELEMENT_INVALID:
+                return nil;
+            case XML_ELEMENT_NODE:
+                return [[XmlNode alloc] initWithNode:prevSibling andDocument:self.document];
+            default:
+                prevSibling = prevSibling->prev;
+                continue;
+        }
+    }
     
-    if (!prev)
-        return nil;
-    
-    return [[XmlNode alloc] initWithNode:prev andDocument:self.document];
+    return nil;
 }
 
 -(XmlNode*)nextSibling
@@ -127,19 +175,27 @@
     if (!self->_node)
         return nil;
     
-    xmlNode* next = self->_node->next;
+    xmlNode* nextSibling = self->_node->next;
+    
     while (1)
     {
-        if (!next)
+        if (!nextSibling)
             return nil;
+
+        int type = [self typeWithNode:nextSibling];
         
-        if (next->type == XML_ELEMENT_NODE)
-            break;
-        
-        next = next->next;
+        switch (type) {
+            case XML_ELEMENT_INVALID:
+                return nil;
+            case XML_ELEMENT_NODE:
+                return [[XmlNode alloc] initWithNode:nextSibling andDocument:self.document];
+            default:
+                nextSibling = nextSibling->next;
+                continue;
+        }
     }
     
-    return [[XmlNode alloc] initWithNode:next andDocument:self.document];
+    return nil;
 }
 
 -(XmlNode*)parent
@@ -158,7 +214,7 @@
 {
     if (!self->_node)
         return @{};
-
+    
     xmlAttr *attribute = self->_node->properties;
     if (attribute == NULL)
         return @{};
@@ -208,10 +264,10 @@
 {
     if (self->_node == NULL)
         return;
-
+    
     if (!name)
         return;
-
+    
     if (!value)
         return;
     
@@ -228,7 +284,7 @@
 {
     if (self->_node == NULL)
         return;
-
+    
     if (!name)
         return;
     
@@ -363,12 +419,16 @@
  * XML_XINCLUDE_END
  * XML_DOCB_DOCUMENT_NODE
  */
--(int)type
+-(int)type {
+    return [self typeWithNode: self->_node];
+}
+
+-(int)typeWithNode: (xmlNodePtr) nodePtr
 {
-    if (!self->_node)
-        return -1;
+    if (!nodePtr)
+        return XML_ELEMENT_INVALID;
     
-    return self->_node->type;
+    return nodePtr->type;
 }
 
 -(NSString*)value
@@ -395,7 +455,7 @@
 {
     if (!self->_node)
         return;
-
+    
     xmlChar* data = (xmlChar*) [content cStringUsingEncoding:NSUTF8StringEncoding];
     xmlNodeSetContent(self->_node, data);
 }

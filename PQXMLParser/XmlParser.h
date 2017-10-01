@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, Plexteq
+ * Copyright (c) 2014, Plexteq OÜ
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,8 +12,8 @@
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
  *
- * 3. Neither the name of the copyright holder nor the names of its contributors 
- * may be used to endorse or promote products derived from this software without 
+ * 3. Neither the name of the copyright holder nor the names of its contributors
+ * may be used to endorse or promote products derived from this software without
  * specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -38,6 +38,9 @@
 
 @class XmlNode;
 @class XmlDocument;
+
+#define XML_ELEMENT_ANY 0
+#define XML_ELEMENT_INVALID -1
 
 /**
  * Interface for managing XmlNode objects
@@ -81,6 +84,11 @@
 -(NSArray*)children;
 
 /**
+ * Returns array of child nodes of given type
+ */
+-(NSArray*)childrenWithType: (int) type;
+
+/**
  * Returns dictionary of node attributes (key - attribute name, value - attribute value)
  */
 -(NSDictionary*)attributes;
@@ -99,6 +107,11 @@
  * Returns text node name
  */
 -(NSString*)name;
+
+/**
+ * Returns text node type
+ */
+-(int)type;
 
 /**
  * Sets node content

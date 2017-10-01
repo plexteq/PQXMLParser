@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PQXMLParserTests/PQXMLParserTests.m"
+            timestampString = "528546020.142448"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "141"
+            endingLineNumber = "141"
+            landmarkName = "-testFirstChild"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PQXMLParserTests testFirstChild]"
+                  moduleName = "PQXMLParserTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/work/repos/plexteq.com/PQXMLParser2/PQXMLParser/PQXMLParserTests/PQXMLParserTests.m"
+                  timestampString = "528324387.077468"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "144"
+                  endingLineNumber = "144"
+                  offsetFromSymbolStart = "3508">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PQXMLParserTests testFirstChild]"
+                  moduleName = "PQXMLParserTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/work/repos/plexteq.com/PQXMLParser2/PQXMLParser/PQXMLParserTests/PQXMLParserTests.m"
+                  timestampString = "528324387.077672"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "144"
+                  endingLineNumber = "144"
+                  offsetFromSymbolStart = "5038">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PQXMLParserTests testFirstChild]"
+                  moduleName = "PQXMLParserTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/work/repos/plexteq.com/PQXMLParser2/PQXMLParser/PQXMLParserTests/PQXMLParserTests.m"
+                  timestampString = "528324387.077959"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "144"
+                  endingLineNumber = "144"
+                  offsetFromSymbolStart = "5493">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PQXMLParserTests testFirstChild]"
+                  moduleName = "PQXMLParserTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/work/repos/plexteq.com/PQXMLParser2/PQXMLParser/PQXMLParserTests/PQXMLParserTests.m"
+                  timestampString = "528324387.078219"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "144"
+                  endingLineNumber = "144"
+                  offsetFromSymbolStart = "5621">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PQXMLParserTests/PQXMLParserTests.m"
+            timestampString = "528545798.849321"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "43"
+            endingLineNumber = "43"
+            landmarkName = "-setUp"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PQXMLParserTests/PQXMLParserTests.m"
+            timestampString = "528545805.308921"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "49"
+            endingLineNumber = "49"
+            landmarkName = "-loadXmlFile"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "PQXMLParserTests/PQXMLParserTests.m"
+            timestampString = "528546833.283186"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "272"
+            endingLineNumber = "272"
+            landmarkName = "-testNextSibling"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PQXMLParserTests testNextSibling]"
+                  moduleName = "PQXMLParserTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/work/repos/plexteq.com/PQXMLParser2/PQXMLParser/PQXMLParserTests/PQXMLParserTests.m"
+                  timestampString = "528546965.417171"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "272"
+                  endingLineNumber = "272"
+                  offsetFromSymbolStart = "5228">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PQXMLParserTests testNextSibling]"
+                  moduleName = "PQXMLParserTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/work/repos/plexteq.com/PQXMLParser2/PQXMLParser/PQXMLParserTests/PQXMLParserTests.m"
+                  timestampString = "528546965.417329"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "272"
+                  endingLineNumber = "272"
+                  offsetFromSymbolStart = "6741">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PQXMLParserTests testNextSibling]"
+                  moduleName = "PQXMLParserTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/work/repos/plexteq.com/PQXMLParser2/PQXMLParser/PQXMLParserTests/PQXMLParserTests.m"
+                  timestampString = "528546965.417502"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "272"
+                  endingLineNumber = "272"
+                  offsetFromSymbolStart = "6848">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[PQXMLParserTests testNextSibling]"
+                  moduleName = "PQXMLParserTests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Volumes/work/repos/plexteq.com/PQXMLParser2/PQXMLParser/PQXMLParserTests/PQXMLParserTests.m"
+                  timestampString = "528546965.417616"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "272"
+                  endingLineNumber = "272"
+                  offsetFromSymbolStart = "6976">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
