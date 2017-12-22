@@ -1,2 +1,4 @@
 language: objective-c
 osx_image: xcode9.1
+xcode_project: PQXMLParser.xcodeproj
+xcode_scheme: PQXMLParserTests
