@@ -1,5 +1,6 @@
-
 # PQXMLParser 
+
+[![Build Status](https://travis-ci.org/plexteq/PQXMLParser.svg?branch=master)](https://travis-ci.org/plexteq/PQXMLParser)
 
 Convenient XML parser/wrapper for Objective-C based on libxml2
 
