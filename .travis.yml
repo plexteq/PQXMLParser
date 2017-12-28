@@ -1,2 +1,5 @@
 language: objective-c
-script: xcodebuild test -project PQXMLParser.xcodeproj -scheme PQXMLParser -destination 'platform=iOS Simulator,name=iPhone 5s'
+script: 
+xcodebuild -target PQXMLParserFramework -project PQXMLParser.xcodeproj;
+xcodebuild -target Framework -project PQXMLParser.xcodeproj;
+xcodebuild test -project PQXMLParser.xcodeproj -scheme PQXMLParser -destination 'platform=iOS Simulator,name=iPhone 5s';
