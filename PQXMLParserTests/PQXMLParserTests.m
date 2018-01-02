@@ -30,7 +30,9 @@
  */
 
 #import <XCTest/XCTest.h>
+//#import <PQXMLParserFramework/PQXMLParser.h>
 #import "../PQXMLParser/XmlParser.h"
+
 
 @interface PQXMLParserTests : XCTestCase
     @property (strong, nonatomic) XmlDocument *xmlDocument;
