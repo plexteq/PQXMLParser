@@ -12,8 +12,8 @@ Pod::Spec.new do |s|
   s.version      = "1.0.0"
   s.summary      = "Convenient XML parser/wrapper for Objective-C based on libxml2"
   s.homepage     = "https://github.com/plexteq/PQXMLParser.git"
-  s.license      = { :type => "MIT", :file => "LICENSE" }
-  s.author             = { "Plexteq" => "gittaca@sequencing.com" }
+  s.license      = { :type => "BSD", :file => "LICENSE" }
+  s.author             = { "Plexteq" => "github@plexteq.com" }
   
   s.source       = { 
   :git => "https://github.com/plexteq/PQXMLParser.git", 
