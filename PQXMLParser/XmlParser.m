@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, Plexteq OÜ
+ * Copyright (c) 2014-2018, Plexteq OÜ
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,10 @@
 @synthesize document;
 @synthesize xpathObject;
 
+-(id)initWithName: (NSString*) name {
+    return [self initWithNode:xmlNewNode(NULL, cstr(name))];
+}
+
 -(id)initWithNode: (xmlNodePtr) node
 {
     self = [super init];
@@ -50,8 +54,7 @@
     if (!self->_node)
         return NO;
 
-    int type = [self typeWithNode:node];
-    if (type == XML_ELEMENT_INVALID)
+    if ([self typeWithNode:node] == XML_ELEMENT_INVALID)
         return NO;
     
     return YES;
@@ -59,13 +62,8 @@
 
 -(id)initWithNode: (xmlNodePtr) node andDocument: (XmlDocument*) doc
 {
-    int type = [self typeWithNode:node];
-
-    if (type == XML_ELEMENT_INVALID)
+    if ([self isValidNode:[self node]])
         return nil;
-    
-    //if ([self typeWithNode:node] != XML_ELEMENT_NODE)
-        //return nil;
     
     self = [self initWithNode: node];
     if (self) {
@@ -83,13 +81,12 @@
     if (!self->_node)
         return nil;
     
-    xmlChar* name = (xmlChar*) [childName cStringUsingEncoding:NSUTF8StringEncoding];
     xmlNodePtr child = self->_node->children;
     
     while (child)
     {
         BOOL isNode = [self typeWithNode:child] == XML_ELEMENT_NODE,
-            nodeMatches = xmlStrcasecmp(name, child->name) == 0;
+        nodeMatches = xmlStrcasecmp(cstr(childName), child->name) == 0;
         
         if (isNode && nodeMatches)
             return [[XmlNode alloc] initWithNode:child andDocument:self->document];
@@ -110,9 +107,9 @@
     if (child == NULL)
         return nil;
     
-    xmlNodePtr next = child->next;
+    //xmlNodePtr next = child->next;
     
-    return [[XmlNode alloc] initWithNode:next andDocument:self.document];
+    return [[XmlNode alloc] initWithNode:child andDocument:self.document];
 }
 
 -(NSArray*)children {
@@ -223,9 +220,8 @@
     
     while (attribute)
     {
-        NSString* key = [NSString stringWithUTF8String: (const char*) attribute->name];
-        NSString* value = [NSString stringWithUTF8String: (const char*) attribute->children->content];
-        [attributes setValue:value forKey:key];
+        [attributes setValue:nsstr(attribute->children->content)
+                      forKey:nsstr(attribute->name)];
         
         attribute = attribute->next;
     }
@@ -238,13 +234,31 @@
     if (!self->_node)
         return nil;
     
-    xmlChar* attrName = (xmlChar*) [name cStringUsingEncoding:NSUTF8StringEncoding];
+    if (!name)
+        return nil;
     
     if (![self hasAttribute:name])
         return nil;
     
-    xmlChar* rawValue = xmlGetProp(self->_node, attrName);
-    NSString* value = [NSString stringWithUTF8String: (const char*) rawValue];
+    xmlChar* rawValue = xmlGetProp(self->_node, cstr(name));
+    NSString* value = nsstr(rawValue);
+    xmlFree(rawValue);
+    
+    return value;
+}
+
+-(NSString*)attributeValueWithNamespace: (NSString*) ns andName: (NSString*) name
+{
+    if (!self->_node)
+        return nil;
+    
+    if (![self hasAttributeWithNamespace:ns andName:name])
+        return nil;
+    
+    xmlNs* srcNs = [self namespaceByPrefix: cstr(ns)];
+    
+    xmlChar* rawValue = xmlGetNsProp(self->_node, cstr(name), srcNs->href);
+    NSString* value = nsstr(rawValue);
     xmlFree(rawValue);
     
     return value;
@@ -253,11 +267,30 @@
 -(BOOL)hasAttribute: (NSString*) name
 {
     if (!self->_node)
-        return nil;
+        return NO;
     
-    xmlChar* attrName = (xmlChar*) [name cStringUsingEncoding:NSUTF8StringEncoding];
+    if (!name)
+        return NO;
     
-    return xmlHasProp(self->_node, attrName) != NULL;
+    return xmlHasProp(self->_node, cstr(name)) != NULL;
+}
+
+-(BOOL)hasAttributeWithNamespace: (NSString*) ns andName: (NSString*) name
+{
+    if (!self->_node)
+        return NO;
+    
+    if (!ns || !name)
+        return NO;
+    
+    return xmlHasNsProp(self->_node, cstr(name), [self namespaceByPrefix:cstr(ns)]->href) != NULL;
+}
+    
+-(void)setAttributes: (NSDictionary*) attributes
+{
+    [attributes enumerateKeysAndObjectsUsingBlock:^(NSString* name, NSString*  value, BOOL * stop) {
+        [self setAttributeWithName:name andValue:value];
+    }];
 }
 
 -(void)setAttributeWithName: (NSString*) name andValue: (NSString*) value
@@ -265,19 +298,27 @@
     if (self->_node == NULL)
         return;
     
-    if (!name)
+    if (!name || !value)
         return;
-    
-    if (!value)
-        return;
-    
-    xmlChar* attrName = (xmlChar*) [name cStringUsingEncoding:NSUTF8StringEncoding];
-    xmlChar* attrValue = (xmlChar*) [value cStringUsingEncoding:NSUTF8StringEncoding];
     
     if ([self hasAttribute:name])
-        xmlSetProp(self->_node, attrName, attrValue);
+        xmlSetProp(self->_node, cstr(name), cstr(value));
     else
-        xmlNewProp(self->_node, attrName, attrValue);
+        xmlNewProp(self->_node, cstr(name), cstr(value));
+}
+
+-(void)setAttributeWithNamespace: (NSString*) namespace andName: (NSString*) name andValue: (NSString*) value
+{
+    if (self->_node == NULL)
+        return;
+    
+    if (!namespace || !name || !value)
+        return;
+    
+    if ([self hasAttributeWithNamespace:namespace andName:name])
+        xmlSetNsProp(self->_node, [self namespaceByPrefix:cstr(namespace)], cstr(name), cstr(value));
+    else
+        xmlNewNsProp(self->_node, [self namespaceByPrefix:cstr(namespace)], cstr(name), cstr(value));
 }
 
 -(void)removeAttributeWithName: (NSString*) name
@@ -291,8 +332,21 @@
     if (![self hasAttribute:name])
         return;
     
-    xmlChar* attrName = (xmlChar*) [name cStringUsingEncoding:NSUTF8StringEncoding];
-    xmlUnsetProp(self->_node, attrName);
+    xmlUnsetProp(self->_node, cstr(name));
+}
+
+-(void)removeAttributeWithNamespace: (NSString*) ns andName: (NSString*) name
+{
+    if (self->_node == NULL)
+        return;
+    
+    if (!name || !ns)
+        return;
+    
+    if (![self hasAttributeWithNamespace:ns andName:name])
+        return;
+    
+    xmlUnsetNsProp(self->_node, [self namespaceByPrefix:cstr(ns)], cstr(name));
 }
 
 /**
@@ -307,7 +361,7 @@
     if (buffer)
     {
         xmlNodeDump(buffer, self->_node->doc, self->_node, 0, 1);
-        result = [NSString stringWithUTF8String: (const char*) xmlBufferContent(buffer)];
+        result = nsstr(xmlBufferContent(buffer));
         xmlBufferFree(buffer);
     }
     
@@ -345,7 +399,7 @@
     if (buffer)
     {
         xmlNodeDump(buffer, self->_node->doc, tempNode, 0, 1);
-        result = [NSString stringWithUTF8String: (const char*) xmlBufferContent(buffer)];
+        result = nsstr(xmlBufferContent(buffer));
         xmlBufferFree(buffer);
     }
     
@@ -380,15 +434,49 @@
     }
 }
 
--(void)appendChild: (XmlNode*) source
+
+-(void)appendAndAdoptChild: (XmlNode*) source
 {
     xmlNodePtr nodeToInject = xmlDocCopyNode(source->_node, [[self document] document], 1);
-    xmlNodePtr injectedNode = xmlAddChildList(self->_node, nodeToInject->children);
+    xmlNodePtr injectedNode = xmlAddChild(self->_node, nodeToInject->children);
     
     if (!injectedNode) {
         xmlFreeNode(injectedNode);
         return;
     }
+}
+
+-(XmlNode*)appendChildWithName: (NSString*) name
+{
+    xmlNodePtr newNode = xmlNewChild([self node], NULL, cstr(name), NULL);
+    return [[XmlNode alloc] initWithNode:newNode];
+}
+
+-(XmlNode*)appendChildWithNamespace: (NSString*) ns andName: (NSString*) name
+{
+    XmlNode* newNode = [self appendChildWithName:name];
+    [newNode setNamespace:ns];
+    
+    return newNode;
+}
+
+-(XmlNode*)appendChildWithName: (NSString*) name andTextValue: (NSString*) textValue
+{
+    XmlNode* newNode = [self appendChildWithName:name];
+    [newNode setValueWithContent: textValue];
+    
+    //xmlNodePtr value = xmlNewText((xmlChar*)[textValue UTF8String]);
+    //xmlAddChild([newNode node], value);
+    
+    return newNode;
+}
+
+-(XmlNode*)appendChildWithNamespace: (NSString*) ns andName: (NSString*) name andTextValue: (NSString*) textValue
+{
+    XmlNode* newNode = [self appendChildWithName:name andTextValue:textValue];
+    xmlSetNs([newNode node], [self namespaceByPrefix:cstr(ns)]);
+    
+    return newNode;
 }
 
 /**
@@ -437,7 +525,7 @@
         return nil;
     
     xmlChar* contents = xmlNodeGetContent(self->_node);
-    NSString* result = [NSString stringWithUTF8String: (const char*) contents];
+    NSString* result = nsstr(contents);
     xmlFree(contents);
     
     return result;
@@ -448,7 +536,26 @@
     if (!self->_node)
         return nil;
     
-    return [NSString stringWithUTF8String: (const char*) self->_node->name];
+    return nsstr(self->_node->name);
+}
+
+-(NSString*)namespace
+{
+    if (![self node])
+        return nil;
+    
+    if (![self node]->ns)
+        return nil;
+    
+    return nsstr(self->_node->ns->prefix);
+}
+
+-(void)setNamespace:(NSString*) ns
+{
+    if (![self node])
+        return;
+    
+    xmlSetNs([self node], [self namespaceByPrefix:cstr(ns)]);
 }
 
 -(void)setValueWithContent: (NSString*) content
@@ -456,8 +563,7 @@
     if (!self->_node)
         return;
     
-    xmlChar* data = (xmlChar*) [content cStringUsingEncoding:NSUTF8StringEncoding];
-    xmlNodeSetContent(self->_node, data);
+    xmlNodeSetContent(self->_node, cstr(content));
 }
 
 /**
@@ -488,9 +594,85 @@
     return false;
 }
 
--(void)dealloc {
+-(void)registerNamespaces: (NSDictionary*) ns
+{
+    if (!ns)
+        return;
+    
+    if (!self->_node)
+        return;
+    
+    [ns enumerateKeysAndObjectsUsingBlock:^(NSString* k, NSString* v, BOOL* stop) {
+        [self registerNamespaceWithPrefix:k andUrl:v];
+    }];
+}
+
+-(void)registerDefaultNamespaceWithUrl: (NSString*) url
+{
+    [self registerNamespaceWithPrefix:nil andUrl:url];
+}
+
+-(void)registerNamespaceWithPrefix: (NSString*) prefix andUrl: (NSString*) url
+{
+    if (!self->_node)
+        return;
+    
+    if (!url)
+        return;
+
+    // if prefix is NULL it will be handled as default
+    xmlNewNs([self node], cstr(url), prefix ? cstr(prefix) : NULL);
+}
+
+-(void)dealloc
+{
     if ([self xpathObject])
         xmlXPathFreeObject(xpathObject);
+}
+
+-(NSDictionary*) listNamespaces
+{
+    xmlNs **nsList = xmlGetNsList([[self document] document], [self node]);
+    
+    if (!nsList)
+        return @{};
+    
+    NSMutableDictionary* result = [[NSMutableDictionary alloc] init];
+    
+    for (int i = 0; nsList[i] != NULL ; i++)
+    {
+        if (nsList[i]->prefix == NULL)
+            continue;
+        
+        [result setValue: nsstr(nsList[i]->href)
+                  forKey: nsstr(nsList[i]->prefix)];
+    }
+    
+    xmlFree(nsList);
+    
+    return result;
+}
+
+-(xmlNs*) namespaceByPrefix: (xmlChar*) prefix
+{
+    xmlNs **nsList = xmlGetNsList([[self document] document], [self node]);
+    xmlNs *result = NULL;
+    
+    if (!nsList)
+        return NULL;
+    
+    for (int i = 0; nsList[i] != NULL ; i++)
+    {
+        if (nsList[i]->prefix == NULL)
+            continue;
+        
+        if (!xmlStrcmp(prefix, nsList[i]->prefix))
+            result = nsList[i];
+    }
+    
+    xmlFree(nsList);
+    
+    return result;
 }
 
 @end;
@@ -504,13 +686,40 @@
 @synthesize document;
 @synthesize namespaces;
 
+-(id)init
+{
+    self = [super init];
+    if (self) {
+        [self setDocument: xmlNewDoc(BAD_CAST "1.0")];
+        char* encoding = calloc(6,1);
+        strcpy(encoding, "UTF-8");
+        [self document]->encoding = encoding;
+        [self document]->standalone = 1;
+    }
+    return self;
+}
+
+-(id)initWithNamespaces: (NSDictionary*) ns
+{
+    if (self = [self init]) {
+        [self setNamespaces:ns];
+    }
+    return self;
+}
+
 -(id)initWithString: (NSString*) xmlString
 {
     self = [super init];
     if (self) {
-        [self setDocument: xmlParseDoc( (xmlChar*) [xmlString cStringUsingEncoding:NSUTF8StringEncoding])];
+        [self setDocument: xmlParseDoc(cstr(xmlString))];
     }
     return self;
+}
+
+-(id)initWithLocation: (NSURL*) url
+{
+    NSData *data = [[NSFileManager defaultManager] contentsAtPath:[url path]];
+    return [self initWithData:data andNamespaces:nil];
 }
 
 -(id)initWithData: (NSData*) xmlData andNamespaces: (NSDictionary*) ns
@@ -519,7 +728,7 @@
     if (self) {
         [self setNamespaces: ns];
         NSString* data = [[NSString alloc] initWithData:xmlData encoding:NSUTF8StringEncoding];
-        [self setDocument: xmlParseDoc( (xmlChar*) [data cStringUsingEncoding:NSUTF8StringEncoding])];
+        [self setDocument: xmlParseDoc(cstr(data))];
     }
     return self;
 }
@@ -529,7 +738,7 @@
     self = [super init];
     if (self) {
         [self setNamespaces: ns];
-        [self setDocument: xmlParseDoc((xmlChar*)[xmlString cStringUsingEncoding:NSUTF8StringEncoding])];
+        [self setDocument: xmlParseDoc(cstr(xmlString))];
     }
     return self;
 }
@@ -543,7 +752,7 @@
     xmlDocDumpMemory([self document], &xml, length);
     
     if (xml) {
-        result = [NSString stringWithCString: xml encoding:NSUTF8StringEncoding];
+        result = nsstr(xml);
         xmlFree(xml);
     }
     
@@ -561,14 +770,20 @@
     if (context == NULL)
         return nil;
     
+    NSMutableDictionary *xpathNamespaces = [[NSMutableDictionary alloc] init];
+    
+    if ([self namespaces])
+        [xpathNamespaces addEntriesFromDictionary:[self namespaces]];
+    
+    [xpathNamespaces addEntriesFromDictionary:[[self root] listNamespaces]];
+    
     // registering namespaces
-    for (NSString* key in [self namespaces]) {
-        NSString* value = [[self namespaces] valueForKey: key];
-        xmlXPathRegisterNs(context, (xmlChar*) [key cStringUsingEncoding: NSUTF8StringEncoding],
-                           (const xmlChar*) [value cStringUsingEncoding: NSUTF8StringEncoding]);
+    for (NSString* key in xpathNamespaces) {
+        NSString* value = [xpathNamespaces valueForKey: key];
+        xmlXPathRegisterNs(context, cstr(key), cstr(value));
     }
     
-    result = xmlXPathEvalExpression((xmlChar*)[expression cStringUsingEncoding: NSUTF8StringEncoding], context);
+    result = xmlXPathEvalExpression(cstr(expression), context);
     
     if (result == NULL) {
         xmlXPathFreeContext(context);
@@ -595,6 +810,17 @@
         return nil;
     
     return [[XmlNode alloc] initWithNode: xmlDocGetRootElement([self document])];
+}
+
+-(void)setRoot: (XmlNode*) node
+{
+    if ([self document] == nil)
+        return;
+    
+    if (!node || ![node node])
+        return;
+    
+    xmlDocSetRootElement([self document], [node node]);
 }
 
 -(void)dealloc {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2014, Plexteq OÜ
+ * Copyright (c) 2014-2018, Plexteq OÜ
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,12 @@
 #define XML_ELEMENT_INVALID -1
 
 /**
+ * Macroses for C string to NSString conversion and vice-versa
+ */
+#define nsstr(s) [NSString stringWithUTF8String: (char*) s]
+#define cstr(s) (xmlChar*) [s cStringUsingEncoding:NSUTF8StringEncoding]
+
+/**
  * Interface for managing XmlNode objects
  */
 @interface XmlNode : NSObject
@@ -61,6 +67,11 @@
  * Reference to XPath libxml2 object if applicable
  */
 @property xmlXPathObjectPtr xpathObject;
+
+/**
+ * Creates new node not linked to a document with a given name
+ */
+-(id)initWithName: (NSString*) name;
 
 /**
  * Constructs XmlNode object with pointer managed by libxml2
@@ -109,6 +120,16 @@
 -(NSString*)name;
 
 /**
+ * Returns text node namespace
+ */
+-(NSString*)namespace;
+
+/**
+ * Sets namespace for the node
+ */
+-(void)setNamespace:(NSString*) ns;
+
+/**
  * Returns text node type
  */
 -(int)type;
@@ -133,6 +154,7 @@
  * Returns node attribute value by provided name
  */
 -(NSString*)attributeValueWithName: (NSString*) name;
+-(NSString*)attributeValueWithNamespace: (NSString*) ns andName: (NSString*) name;
 
 /**
  * Removes all children of this node
@@ -142,32 +164,53 @@
 /**
  * Adds child to the current node
  */
--(void)appendChild: (XmlNode*) source;
+-(XmlNode*)appendChildWithName: (NSString*) name;
+-(XmlNode*)appendChildWithName: (NSString*) name andTextValue: (NSString*) textValue;
+
+-(XmlNode*)appendChildWithNamespace: (NSString*) ns andName: (NSString*) name;
+-(XmlNode*)appendChildWithNamespace: (NSString*) ns andName: (NSString*) name andTextValue: (NSString*) textValue;
+
+/**
+ * Adds child to the current node which originates from another document
+ */
+-(void)appendAndAdoptChild: (XmlNode*) source;
 
 /**
  * Checks whether specified attribute exists on the node
  */
 -(BOOL)hasAttribute: (NSString*) name;
+-(BOOL)hasAttributeWithNamespace: (NSString*) ns andName: (NSString*) name;
 
 /**
  * Adds attribute to the current node
  */
 -(void)setAttributeWithName: (NSString*) name andValue: (NSString*) value;
+-(void)setAttributeWithNamespace: (NSString*) ns andName: (NSString*) name andValue: (NSString*) value;
+
+/**
+ * Adds multiple attributes at a time
+ */
+-(void)setAttributes: (NSDictionary*) attributes;
 
 /**
  * Removes attribute from current node
  */
 -(void)removeAttributeWithName: (NSString*) name;
+-(void)removeAttributeWithNamespace: (NSString*) ns andName: (NSString*) name;
 
 /**
  * Returns parent node
  */
 -(XmlNode*)parent;
 
-
 -(XmlNode*)nextSibling;
 -(XmlNode*)prevSibling;
 
+-(void)registerNamespaces: (NSDictionary*) ns;
+-(void)registerNamespaceWithPrefix: (NSString*) prefix andUrl: (NSString*) url;
+-(void)registerDefaultNamespaceWithUrl: (NSString*) url;
+
+-(NSDictionary*) listNamespaces;
 
 /**
  * Destructor
@@ -191,6 +234,14 @@
  * program logic
  */
 @property NSDictionary* namespaces;
+
+-(id)init;
+-(id)initWithNamespaces: (NSDictionary*) ns;
+
+/**
+ * Constructs XmlDocument from provided NSURL
+ */
+-(id)initWithLocation: (NSURL*) url;
 
 /**
  * Constructs XmlDocument from provided NSData and set of namespaces
@@ -216,6 +267,11 @@
  * Returns root XmlNode for this document
  */
 -(XmlNode*) root;
+
+/**
+ * Sets XmlNode as root for this document
+ */
+-(void)setRoot: (XmlNode*) node;
 
 /**
  * Evaluates XPath expression and returns XmlNode for it
