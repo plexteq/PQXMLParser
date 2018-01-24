@@ -170,6 +170,19 @@
 -(XmlNode*)appendChildWithNamespace: (NSString*) ns andName: (NSString*) name;
 -(XmlNode*)appendChildWithNamespace: (NSString*) ns andName: (NSString*) name andTextValue: (NSString*) textValue;
 
+-(XmlNode*)appendChildAsNextSiblingWithName: (NSString*) name;
+-(XmlNode*)appendChildAsPrevSiblingWithName: (NSString*) name;
+
+-(XmlNode*)appendChildAsNextSiblingWithName: (NSString*) name andTextValue: (NSString*) textValue;
+-(XmlNode*)appendChildAsPrevSiblingWithName: (NSString*) name andTextValue: (NSString*) textValue;
+
+-(XmlNode*)appendChildAsNextSiblingWithNamespace: (NSString*) ns andName: (NSString*) name;
+-(XmlNode*)appendChildAsPrevSiblingWithNamespace: (NSString*) ns andName: (NSString*) name;
+
+-(XmlNode*)appendChildAsNextSiblingWithNamespace: (NSString*) ns andName: (NSString*) name andTextValue: (NSString*) textValue;
+
+-(XmlNode*)appendChildAsPrevSiblingWithNamespace: (NSString*) ns andName: (NSString*) name andTextValue: (NSString*) textValue;
+
 /**
  * Adds child to the current node which originates from another document
  */

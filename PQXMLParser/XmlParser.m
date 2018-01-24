@@ -434,7 +434,6 @@
     }
 }
 
-
 -(void)appendAndAdoptChild: (XmlNode*) source
 {
     xmlNodePtr nodeToInject = xmlDocCopyNode(source->_node, [[self document] document], 1);
@@ -452,6 +451,20 @@
     return [[XmlNode alloc] initWithNode:newNode];
 }
 
+-(XmlNode*)appendChildAsNextSiblingWithName: (NSString*) name
+{
+    XmlNode *newNode = [self appendChildWithName:name];
+    xmlAddNextSibling([self node], [newNode node]);
+    return newNode;
+}
+
+-(XmlNode*)appendChildAsPrevSiblingWithName: (NSString*) name
+{
+    XmlNode *newNode = [self appendChildWithName:name];
+    xmlAddPrevSibling([self node], [newNode node]);
+    return newNode;
+}
+
 -(XmlNode*)appendChildWithNamespace: (NSString*) ns andName: (NSString*) name
 {
     XmlNode* newNode = [self appendChildWithName:name];
@@ -460,14 +473,40 @@
     return newNode;
 }
 
+-(XmlNode*)appendChildAsNextSiblingWithNamespace: (NSString*) ns andName: (NSString*) name
+{
+    XmlNode *newNode = [self appendChildWithNamespace:ns andName:name];
+    xmlAddNextSibling([self node], [newNode node]);
+    return newNode;
+}
+
+-(XmlNode*)appendChildAsPrevSiblingWithNamespace: (NSString*) ns andName: (NSString*) name
+{
+    XmlNode *newNode = [self appendChildWithNamespace:ns andName:name];
+    xmlAddPrevSibling([self node], [newNode node]);
+    return newNode;
+}
+
+
 -(XmlNode*)appendChildWithName: (NSString*) name andTextValue: (NSString*) textValue
 {
     XmlNode* newNode = [self appendChildWithName:name];
     [newNode setValueWithContent: textValue];
     
-    //xmlNodePtr value = xmlNewText((xmlChar*)[textValue UTF8String]);
-    //xmlAddChild([newNode node], value);
+    return newNode;
+}
     
+-(XmlNode*)appendChildAsNextSiblingWithName: (NSString*) name andTextValue: (NSString*) textValue
+{
+    XmlNode *newNode = [self appendChildWithName:name andTextValue:textValue];
+    xmlAddNextSibling([self node], [newNode node]);
+    return newNode;
+}
+
+-(XmlNode*)appendChildAsPrevSiblingWithName: (NSString*) name andTextValue: (NSString*) textValue
+{
+    XmlNode *newNode = [self appendChildWithName:name andTextValue:textValue];
+    xmlAddPrevSibling([self node], [newNode node]);
     return newNode;
 }
 
@@ -478,6 +517,21 @@
     
     return newNode;
 }
+
+-(XmlNode*)appendChildAsNextSiblingWithNamespace: (NSString*) ns andName: (NSString*) name andTextValue: (NSString*) textValue
+{
+    XmlNode *newNode = [self appendChildWithNamespace:ns andName:name andTextValue:textValue];
+    xmlAddNextSibling([self node], [newNode node]);
+    return newNode;
+}
+
+-(XmlNode*)appendChildAsPrevSiblingWithNamespace: (NSString*) ns andName: (NSString*) name andTextValue: (NSString*) textValue
+{
+    XmlNode *newNode = [self appendChildWithNamespace:ns andName:name andTextValue:textValue];
+    xmlAddPrevSibling([self node], [newNode node]);
+    return newNode;
+}
+
 
 /**
  * Node manipulation
