@@ -187,6 +187,8 @@
  * Adds child to the current node which originates from another document
  */
 -(void)appendAndAdoptChild: (XmlNode*) source;
+-(void)appendAndAdoptChildAsNextSibling: (XmlNode*) source;
+-(void)appendAndAdoptChildAsPrevSibling: (XmlNode*) source;
 
 /**
  * Checks whether specified attribute exists on the node
@@ -224,6 +226,17 @@
 -(void)registerDefaultNamespaceWithUrl: (NSString*) url;
 
 -(NSDictionary*) listNamespaces;
+
+/**
+ * Removes node
+ */
+-(void) remove;
+
+/**
+ * Replaces node with new one
+ * (applicable for non-root nodes)
+ */
+-(void) replaceWithNode: (XmlNode*) newNode;
 
 /**
  * Destructor
@@ -290,6 +303,12 @@
  * Evaluates XPath expression and returns XmlNode for it
  */
 -(XmlNode*) xpathWithExpression: (NSString*) expression;
+
+/**
+ * Evaluates XPath expression from given node
+ * example: .//a:p[@id='a1sp38']
+ */
+-(XmlNode*) xpathWithExpression: (NSString*) expression andSearchRootNode: (XmlNode*) startNode;
 
 /**
  * Destructor

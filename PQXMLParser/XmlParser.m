@@ -437,7 +437,29 @@
 -(void)appendAndAdoptChild: (XmlNode*) source
 {
     xmlNodePtr nodeToInject = xmlDocCopyNode(source->_node, [[self document] document], 1);
-    xmlNodePtr injectedNode = xmlAddChild(self->_node, nodeToInject->children);
+    xmlNodePtr injectedNode = xmlAddChild([self node], nodeToInject->children);
+    
+    if (!injectedNode) {
+        xmlFreeNode(injectedNode);
+        return;
+    }
+}
+
+-(void)appendAndAdoptChildAsNextSibling: (XmlNode*) source
+{
+    xmlNodePtr nodeToInject = xmlDocCopyNode(source->_node, [[self document] document], 1);
+    xmlNodePtr injectedNode = xmlAddNextSibling([self node], nodeToInject->children);
+    
+    if (!injectedNode) {
+        xmlFreeNode(injectedNode);
+        return;
+    }
+}
+
+-(void)appendAndAdoptChildAsPrevSibling: (XmlNode*) source
+{
+    xmlNodePtr nodeToInject = xmlDocCopyNode(source->_node, [[self document] document], 1);
+    xmlNodePtr injectedNode = xmlAddPrevSibling([self node], nodeToInject->children);
     
     if (!injectedNode) {
         xmlFreeNode(injectedNode);
@@ -678,6 +700,18 @@
     xmlNewNs([self node], cstr(url), prefix ? cstr(prefix) : NULL);
 }
 
+-(void) remove
+{
+    xmlUnlinkNode([self node]);
+    xmlFreeNode([self node]);
+}
+
+-(void) replaceWithNode: (XmlNode*) newNode
+{
+    [self appendAndAdoptChildAsNextSibling:newNode];
+    [self remove];
+}
+
 -(void)dealloc
 {
     if ([self xpathObject])
@@ -815,6 +849,11 @@
 
 -(XmlNode*)xpathWithExpression: (NSString*) expression
 {
+    return [self xpathWithExpression: expression andSearchRootNode:nil];
+}
+
+-(XmlNode*)xpathWithExpression: (NSString*) expression andSearchRootNode: (XmlNode*) startNode
+{
     xmlXPathContextPtr context;
     xmlXPathObjectPtr result;
     
@@ -824,6 +863,9 @@
     if (context == NULL)
         return nil;
     
+    if (startNode)
+        context->node = [startNode node];
+
     NSMutableDictionary *xpathNamespaces = [[NSMutableDictionary alloc] init];
     
     if ([self namespaces])
